@@ -8,7 +8,6 @@ import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.ActivityLoginBinding
 import ru.aasmc.taskie.model.request.UserDataRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
-import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.ui.main.MainActivity
 import ru.aasmc.taskie.ui.register.RegisterActivity
 import ru.aasmc.taskie.utils.gone
@@ -23,7 +22,7 @@ class LoginActivity : AppCompatActivity() {
         NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
     }
 
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

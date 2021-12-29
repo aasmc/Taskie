@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.FragmentNotesBinding
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.networking.NetworkStatusChecker
-import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.ui.notes.dialog.AddTaskDialogFragment
 import ru.aasmc.taskie.ui.notes.dialog.TaskOptionsDialogFragment
 import ru.aasmc.taskie.utils.gone
@@ -30,7 +30,7 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     private var _binding: FragmentNotesBinding? = null
     private val binding: FragmentNotesBinding get() = _binding!!
     private val adapter by lazy { TaskAdapter(::onItemSelected) }
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {

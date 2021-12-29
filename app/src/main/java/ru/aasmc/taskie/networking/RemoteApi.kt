@@ -20,7 +20,9 @@ import java.net.URL
 
 const val BASE_URL = "https://taskie-rw.herokuapp.com"
 
-class RemoteApi {
+class RemoteApi(
+    private val remoteApiService: RemoteApiService
+) {
     private val gson = Gson()
 
     fun loginUser(userDataRequest: UserDataRequest, onUserLoggedIn: (String?, Throwable?) -> Unit) {

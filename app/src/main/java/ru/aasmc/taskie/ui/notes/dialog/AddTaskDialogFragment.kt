@@ -9,13 +9,13 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
+import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogNewTaskBinding
 import ru.aasmc.taskie.model.PriorityColor
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.request.AddTaskRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
-import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.utils.toast
 
 /**
@@ -31,7 +31,7 @@ class AddTaskDialogFragment : DialogFragment() {
     private val binding: FragmentDialogNewTaskBinding get() = _binding!!
 
     private var taskAddedListener: TaskAddedListener? = null
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     interface TaskAddedListener {
         fun onTaskAdded(task: Task)

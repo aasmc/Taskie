@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentProfileBinding
-import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.ui.login.LoginActivity
 
 /**
@@ -17,7 +16,7 @@ import ru.aasmc.taskie.ui.login.LoginActivity
  */
 class ProfileFragment : Fragment() {
 
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!

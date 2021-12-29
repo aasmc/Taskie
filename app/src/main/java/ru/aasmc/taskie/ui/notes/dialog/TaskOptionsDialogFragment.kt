@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
+import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogTaskOptionsBinding
 import ru.aasmc.taskie.networking.NetworkStatusChecker
-import ru.aasmc.taskie.networking.RemoteApi
 
 /**
  * Displays the options to delete or complete a task.
@@ -23,7 +23,7 @@ class TaskOptionsDialogFragment : DialogFragment() {
     private val binding: FragmentDialogTaskOptionsBinding = _binding!!
     private var taskOptionSelectedListener: TaskOptionSelectedListener? = null
 
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     companion object {
         private const val KEY_TASK_ID = "task_id"

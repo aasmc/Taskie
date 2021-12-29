@@ -2,6 +2,8 @@ package ru.aasmc.taskie
 
 import android.app.Application
 import android.content.Context
+import ru.aasmc.taskie.networking.RemoteApi
+import ru.aasmc.taskie.networking.buildApiService
 
 private const val KEY_PREFERENCES = "taskie_preferences"
 private const val KEY_TOKEN = "token"
@@ -22,6 +24,14 @@ class App : Application() {
         }
 
         fun getToken() = preferences.getString(KEY_TOKEN, "") ?: ""
+
+        private val apiService by lazy {
+            buildApiService()
+        }
+
+        val remoteApi by lazy {
+            RemoteApi(apiService)
+        }
     }
 
     override fun onCreate() {

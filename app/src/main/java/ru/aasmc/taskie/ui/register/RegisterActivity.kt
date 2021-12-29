@@ -3,10 +3,10 @@ package ru.aasmc.taskie.ui.register
 import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.ActivityRegisterBinding
 import ru.aasmc.taskie.model.request.UserDataRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
-import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.utils.gone
 import ru.aasmc.taskie.utils.toast
 import ru.aasmc.taskie.utils.visible
@@ -19,7 +19,7 @@ class RegisterActivity : AppCompatActivity() {
     private val networkStatusChecker by lazy {
         NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
     }
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     lateinit var binding: ActivityRegisterBinding
 
