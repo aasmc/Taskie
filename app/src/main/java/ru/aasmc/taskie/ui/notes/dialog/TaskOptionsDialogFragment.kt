@@ -1,5 +1,6 @@
 package ru.aasmc.taskie.ui.notes.dialog
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,13 +9,16 @@ import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogTaskOptionsBinding
+import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.networking.RemoteApi
 
 /**
  * Displays the options to delete or complete a task.
  */
 class TaskOptionsDialogFragment : DialogFragment() {
-
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
+    }
     private var _binding: FragmentDialogTaskOptionsBinding? = null
     private val binding: FragmentDialogTaskOptionsBinding = _binding!!
     private var taskOptionSelectedListener: TaskOptionSelectedListener? = null
@@ -24,11 +28,12 @@ class TaskOptionsDialogFragment : DialogFragment() {
     companion object {
         private const val KEY_TASK_ID = "task_id"
 
-        fun newInstance(taskId: String): TaskOptionsDialogFragment = TaskOptionsDialogFragment().apply {
-            arguments = Bundle().apply {
-                putString(KEY_TASK_ID, taskId)
+        fun newInstance(taskId: String): TaskOptionsDialogFragment =
+            TaskOptionsDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putString(KEY_TASK_ID, taskId)
+                }
             }
-        }
     }
 
     interface TaskOptionSelectedListener {
@@ -42,8 +47,10 @@ class TaskOptionsDialogFragment : DialogFragment() {
         setStyle(STYLE_NO_TITLE, R.style.FragmentDialogTheme)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentDialogTaskOptionsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -52,7 +59,8 @@ class TaskOptionsDialogFragment : DialogFragment() {
         super.onStart()
         dialog?.window?.setLayout(
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT)
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -65,20 +73,28 @@ class TaskOptionsDialogFragment : DialogFragment() {
         if (taskId.isEmpty()) dismissAllowingStateLoss()
 
         binding.deleteTask.setOnClickListener {
-            remoteApi.deleteTask { error ->
-                if (error == null) {
-                    taskOptionSelectedListener?.onTaskDeleted(taskId)
+            networkStatusChecker.performIfConnectedToInternet {
+                remoteApi.deleteTask { error ->
+                    activity?.runOnUiThread {
+                        if (error == null) {
+                            taskOptionSelectedListener?.onTaskDeleted(taskId)
+                        }
+                        dismissAllowingStateLoss()
+                    }
                 }
-                dismissAllowingStateLoss()
             }
         }
 
         binding.completeTask.setOnClickListener {
-            remoteApi.completeTask { error ->
-                if (error == null) {
-                    taskOptionSelectedListener?.onTaskCompleted(taskId)
+            networkStatusChecker.performIfConnectedToInternet {
+                remoteApi.completeTask(taskId) { error ->
+                    activity?.runOnUiThread {
+                        if (error == null) {
+                            taskOptionSelectedListener?.onTaskCompleted(taskId)
+                        }
+                        dismissAllowingStateLoss()
+                    }
                 }
-                dismissAllowingStateLoss()
             }
         }
     }
