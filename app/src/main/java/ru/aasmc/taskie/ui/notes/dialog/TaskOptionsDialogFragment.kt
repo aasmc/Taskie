@@ -20,7 +20,7 @@ class TaskOptionsDialogFragment : DialogFragment() {
         NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
     }
     private var _binding: FragmentDialogTaskOptionsBinding? = null
-    private val binding: FragmentDialogTaskOptionsBinding = _binding!!
+    private val binding: FragmentDialogTaskOptionsBinding get() = _binding!!
     private var taskOptionSelectedListener: TaskOptionSelectedListener? = null
 
     private val remoteApi = App.remoteApi
@@ -75,12 +75,10 @@ class TaskOptionsDialogFragment : DialogFragment() {
         binding.deleteTask.setOnClickListener {
             networkStatusChecker.performIfConnectedToInternet {
                 remoteApi.deleteTask { error ->
-                    activity?.runOnUiThread {
-                        if (error == null) {
-                            taskOptionSelectedListener?.onTaskDeleted(taskId)
-                        }
-                        dismissAllowingStateLoss()
+                    if (error == null) {
+                        taskOptionSelectedListener?.onTaskDeleted(taskId)
                     }
+                    dismissAllowingStateLoss()
                 }
             }
         }
@@ -99,7 +97,7 @@ class TaskOptionsDialogFragment : DialogFragment() {
         }
     }
 
-    fun setTaskOptionSelectedListener(taskOptionSelectedListener: TaskOptionSelectedListener) {
+    fun setTaskOptionSelectedListener(taskOptionSelectedListener: TaskOptionsDialogFragment.TaskOptionSelectedListener) {
         this.taskOptionSelectedListener = taskOptionSelectedListener
     }
 }

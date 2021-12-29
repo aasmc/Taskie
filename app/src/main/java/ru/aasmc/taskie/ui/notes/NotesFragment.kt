@@ -32,8 +32,10 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     private val adapter by lazy { TaskAdapter(::onItemSelected) }
     private val remoteApi = App.remoteApi
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         _binding = FragmentNotesBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -64,6 +66,8 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
 
     override fun onTaskAdded(task: Task) {
         adapter.addData(task)
+        binding.progress.gone()
+        binding.noData.gone()
     }
 
     private fun addTask() {
@@ -76,13 +80,13 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
         binding.progress.visible()
         networkStatusChecker.performIfConnectedToInternet {
             remoteApi.getTasks { tasks, error ->
-                activity?.runOnUiThread {
-                    if (tasks.isNotEmpty()) {
-                        onTaskListReceived(tasks)
-                    } else if (error != null) {
-                        onGetTasksFailed()
-                    }
+
+                if (tasks.isNotEmpty()) {
+                    onTaskListReceived(tasks)
+                } else if (error != null) {
+                    onGetTasksFailed()
                 }
+
             }
         }
     }

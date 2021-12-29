@@ -32,23 +32,30 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun initUi() {
         binding.register.setOnClickListener {
-            processData(binding.nameInput.text.toString(), binding.emailInput.text.toString(),
-                binding.passwordInput.text.toString())
+            processData(
+                binding.nameInput.text.toString(), binding.emailInput.text.toString(),
+                binding.passwordInput.text.toString()
+            )
         }
     }
 
     private fun processData(username: String, email: String, password: String) {
         if (username.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.registerUser(UserDataRequest(email, password, username)) { message, error ->
-                    runOnUiThread {
-                        if (message != null) {
-                            toast(message)
-                            onRegisterSuccess()
-                        } else if (error != null) {
-                            onRegisterError()
-                        }
+                remoteApi.registerUser(
+                    UserDataRequest(
+                        email,
+                        password,
+                        username
+                    )
+                ) { message, error ->
+                    if (message != null) {
+                        toast(message)
+                        onRegisterSuccess()
+                    } else if (error != null) {
+                        onRegisterError()
                     }
+                    
                 }
             }
         } else {

@@ -93,12 +93,10 @@ class AddTaskDialogFragment : DialogFragment() {
         val priority = binding.prioritySelector.selectedItemPosition + 1
         networkStatusChecker.performIfConnectedToInternet {
             remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
-                activity?.runOnUiThread {
-                    if (task != null) {
-                        onTaskAdded(task)
-                    } else if (error != null) {
-                        onTaskAddFailed()
-                    }
+                if (task != null) {
+                    onTaskAdded(task)
+                } else if (error != null) {
+                    onTaskAddFailed()
                 }
             }
             clearUi()
