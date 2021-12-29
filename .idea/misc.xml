@@ -3,14 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_login.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.371875" />
+        <entry key="app/src/main/res/drawable/ic_add.xml" value="0.371875" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.371875" />
+        <entry key="app/src/main/res/drawable/ic_priority.xml" value="0.371875" />
+        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.371875" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_register.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_dialog_new_task.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_dialog_task_options.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_notes.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/item_task.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_register.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/fragment_dialog_new_task.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_dialog_task_options.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/fragment_notes.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/item_task.xml" value="0.22" />
       </map>
     </option>
   </component>
