@@ -1,11 +1,13 @@
 package ru.aasmc.taskie.networking
 
+import com.google.gson.Gson
 import org.json.JSONObject
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.UserProfile
 import ru.aasmc.taskie.model.request.AddTaskRequest
 import ru.aasmc.taskie.model.request.UserDataRequest
+import ru.aasmc.taskie.model.response.GetTasksResponse
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.StringBuilder
@@ -19,6 +21,7 @@ import java.net.URL
 const val BASE_URL = "https://taskie-rw.herokuapp.com"
 
 class RemoteApi {
+    private val gson = Gson()
 
     fun loginUser(userDataRequest: UserDataRequest, onUserLoggedIn: (String?, Throwable?) -> Unit) {
         Thread(Runnable {
@@ -30,10 +33,8 @@ class RemoteApi {
             connection.connectTimeout = 10000
             connection.doOutput = true
             connection.doInput = true
-            val requestJson = JSONObject()
-            requestJson.put("email", userDataRequest.email)
-            requestJson.put("password", userDataRequest.password)
-            val body = requestJson.toString()
+
+            val body = gson.toJson(userDataRequest)
 
             val bytes = body.toByteArray()
 
@@ -74,11 +75,7 @@ class RemoteApi {
             connection.doOutput = true
             connection.doInput = true
 
-            val requestJson = JSONObject()
-            requestJson.put("name", userDataRequest.name)
-            requestJson.put("email", userDataRequest.email)
-            requestJson.put("password", userDataRequest.password)
-            val body = requestJson.toString()
+            val body = gson.toJson(userDataRequest)
 
             val bytes = body.toByteArray()
             try {
@@ -108,20 +105,37 @@ class RemoteApi {
     }
 
     fun getTasks(onTasksReceived: (List<Task>, Throwable?) -> Unit) {
-        onTasksReceived(listOf(
-            Task("id",
-                "Wash laundry",
-                "Wash the whites and colored separately!",
-                false,
-                1
-            ),
-            Task("id2",
-                "Do some work",
-                "Finish the project",
-                false,
-                3
-            )
-        ), null)
+        Thread(Runnable {
+            val connection = URL("$BASE_URL/api/note").openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Accept", "application/json")
+            connection.setRequestProperty("Authorization", App.getToken())
+            connection.readTimeout = 10000
+            connection.connectTimeout = 10000
+            connection.doOutput = true
+            connection.doInput = true
+
+            try {
+                val reader = InputStreamReader(connection.inputStream)
+                reader.use { input ->
+                    val response = StringBuilder()
+                    val bufferedReader = BufferedReader(input)
+                    bufferedReader.useLines { lines ->
+                        lines.forEach {
+                            response.append(it.trim())
+                        }
+                    }
+                    val tasksResponse =
+                        gson.fromJson(response.toString(), GetTasksResponse::class.java)
+                    onTasksReceived(tasksResponse.notes, null)
+                }
+            } catch (e: Throwable) {
+                onTasksReceived(emptyList(), e)
+            } finally {
+                connection.disconnect()
+            }
+        }).start()
     }
 
     fun deleteTask(onTaskDeleted: (Throwable?) -> Unit) {
@@ -144,12 +158,7 @@ class RemoteApi {
             connection.doOutput = true
             connection.doInput = true
 
-            val request = JSONObject()
-            request.put("title", addTaskRequest.title)
-            request.put("content", addTaskRequest.title)
-            request.put("taskPriority", addTaskRequest.taskPriority)
-
-            val body = request.toString()
+            val body = gson.toJson(addTaskRequest)
 
             val bytes = body.toByteArray()
             try {

@@ -1,5 +1,6 @@
 package ru.aasmc.taskie.ui.notes
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import ru.aasmc.taskie.databinding.FragmentNotesBinding
 import ru.aasmc.taskie.model.Task
+import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.ui.notes.dialog.AddTaskDialogFragment
 import ru.aasmc.taskie.ui.notes.dialog.TaskOptionsDialogFragment
@@ -20,6 +22,10 @@ import ru.aasmc.taskie.utils.visible
  */
 class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     TaskOptionsDialogFragment.TaskOptionSelectedListener {
+
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
+    }
 
     private var _binding: FragmentNotesBinding? = null
     private val binding: FragmentNotesBinding get() = _binding!!
@@ -68,11 +74,15 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
 
     private fun getAllTasks() {
         binding.progress.visible()
-        remoteApi.getTasks { tasks, error ->
-            if (tasks.isNotEmpty()) {
-                onTaskListReceived(tasks)
-            } else if (error != null) {
-                onGetTasksFailed()
+        networkStatusChecker.performIfConnectedToInternet {
+            remoteApi.getTasks { tasks, error ->
+                activity?.runOnUiThread {
+                    if (tasks.isNotEmpty()) {
+                        onTaskListReceived(tasks)
+                    } else if (error != null) {
+                        onGetTasksFailed()
+                    }
+                }
             }
         }
     }
