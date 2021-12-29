@@ -1,5 +1,6 @@
 package ru.aasmc.taskie.ui.notes.dialog
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import ru.aasmc.taskie.databinding.FragmentDialogNewTaskBinding
 import ru.aasmc.taskie.model.PriorityColor
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.request.AddTaskRequest
+import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.utils.toast
 
@@ -20,6 +22,11 @@ import ru.aasmc.taskie.utils.toast
  * Dialog fragment to create a new task.
  */
 class AddTaskDialogFragment : DialogFragment() {
+
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
+    }
+
     private var _binding: FragmentDialogNewTaskBinding? = null
     private val binding: FragmentDialogNewTaskBinding get() = _binding!!
 
@@ -39,9 +46,11 @@ class AddTaskDialogFragment : DialogFragment() {
         taskAddedListener = listener
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        _binding = FragmentDialogNewTaskBinding.inflate(inflater, container,false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentDialogNewTaskBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -49,7 +58,8 @@ class AddTaskDialogFragment : DialogFragment() {
         super.onStart()
         dialog?.window?.setLayout(
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT)
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,8 +71,10 @@ class AddTaskDialogFragment : DialogFragment() {
     private fun initUi() {
         context?.let {
             binding.prioritySelector.adapter =
-                ArrayAdapter<PriorityColor>(it, android.R.layout.simple_spinner_dropdown_item,
-                    PriorityColor.values())
+                ArrayAdapter<PriorityColor>(
+                    it, android.R.layout.simple_spinner_dropdown_item,
+                    PriorityColor.values()
+                )
             binding.prioritySelector.setSelection(0)
         }
     }
@@ -78,15 +90,18 @@ class AddTaskDialogFragment : DialogFragment() {
         val title = binding.newTaskTitleInput.text.toString()
         val content = binding.newTaskDescriptionInput.text.toString()
         val priority = binding.prioritySelector.selectedItemPosition + 1
-
-        remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
-            if (task != null) {
-                onTaskAdded(task)
-            } else if (error != null) {
-                onTaskAddFailed()
+        networkStatusChecker.performIfConnectedToInternet {
+            remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
+                activity?.runOnUiThread {
+                    if (task != null) {
+                        onTaskAdded(task)
+                    } else if (error != null) {
+                        onTaskAddFailed()
+                    }
+                }
             }
+            clearUi()
         }
-        clearUi()
     }
 
 
@@ -97,7 +112,8 @@ class AddTaskDialogFragment : DialogFragment() {
     }
 
     private fun isInputEmpty(): Boolean = TextUtils.isEmpty(
-        binding.newTaskTitleInput.text) || TextUtils.isEmpty(binding.newTaskDescriptionInput.text)
+        binding.newTaskTitleInput.text
+    ) || TextUtils.isEmpty(binding.newTaskDescriptionInput.text)
 
     private fun onTaskAdded(task: Task) {
         taskAddedListener?.onTaskAdded(task)
