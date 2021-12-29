@@ -4,6 +4,11 @@ import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.UserProfile
 import ru.aasmc.taskie.model.request.AddTaskRequest
 import ru.aasmc.taskie.model.request.UserDataRequest
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.lang.StringBuilder
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * Holds decoupled logic for all the API calls.
@@ -18,7 +23,42 @@ class RemoteApi {
     }
 
     fun registerUser(userDataRequest: UserDataRequest, onUserCreated: (String?, Throwable?) -> Unit) {
-        onUserCreated("Success!", null)
+        Thread(Runnable {
+            val connection = URL("$BASE_URL/api/register").openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Accept", "application/json")
+            connection.readTimeout = 10000
+            connection.connectTimeout = 10000
+            connection.doOutput = true
+            connection.doInput = true
+
+            val body = "{\"name\":\"${userDataRequest.name}\", \"email\":\"${userDataRequest.email}\"," +
+                    "\"password\":\"${userDataRequest.password}\"}"
+
+            val bytes = body.toByteArray()
+            try {
+                connection.outputStream.use { out ->
+                    out.write(bytes)
+                }
+
+                val reader = InputStreamReader(connection.inputStream)
+                reader.use { input ->
+                    val response = StringBuilder()
+                    val bufferedReader = BufferedReader(input)
+                    bufferedReader.useLines { lines ->
+                        lines.forEach {
+                            response.append(it.trim())
+                        }
+                    }
+                    onUserCreated(response.toString(), null)
+                }
+            } catch (e: Throwable) {
+                onUserCreated(null, e)
+            } finally {
+                connection.disconnect()
+            }
+        }).start()
     }
 
     fun getTasks(onTasksReceived: (List<Task>, Throwable?) -> Unit) {
