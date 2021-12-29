@@ -7,10 +7,7 @@ import retrofit2.http.*
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.request.AddTaskRequest
 import ru.aasmc.taskie.model.request.UserDataRequest
-import ru.aasmc.taskie.model.response.CompleteNoteResponse
-import ru.aasmc.taskie.model.response.GetTasksResponse
-import ru.aasmc.taskie.model.response.LoginResponse
-import ru.aasmc.taskie.model.response.RegisterResponse
+import ru.aasmc.taskie.model.response.*
 
 interface RemoteApiService {
 
@@ -24,7 +21,7 @@ interface RemoteApiService {
     fun loginUser(@Body request: UserDataRequest): Call<LoginResponse>
 
     @GET("/api/user/profile")
-    fun getMyProfile(@Header("Authorization") token: String): Call<ResponseBody>
+    fun getMyProfile(@Header("Authorization") token: String): Call<UserProfileResponse>
 
     @POST("/api/note/complete")
     fun completeTask(
