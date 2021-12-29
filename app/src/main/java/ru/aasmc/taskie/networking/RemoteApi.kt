@@ -1,5 +1,6 @@
 package ru.aasmc.taskie.networking
 
+import org.json.JSONObject
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.UserProfile
 import ru.aasmc.taskie.model.request.AddTaskRequest
@@ -19,7 +20,46 @@ const val BASE_URL = "https://taskie-rw.herokuapp.com"
 class RemoteApi {
 
     fun loginUser(userDataRequest: UserDataRequest, onUserLoggedIn: (String?, Throwable?) -> Unit) {
-        onUserLoggedIn("token", null)
+        Thread(Runnable {
+            val connection = URL("$BASE_URL/api/login").openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("Accept", "application/json")
+            connection.readTimeout = 10000
+            connection.connectTimeout = 10000
+            connection.doOutput = true
+            connection.doInput = true
+            val requestJson = JSONObject()
+            requestJson.put("email", userDataRequest.email)
+            requestJson.put("password", userDataRequest.password)
+            val body = requestJson.toString()
+
+            val bytes = body.toByteArray()
+
+            try {
+                connection.outputStream.use { out ->
+                    out.write(bytes)
+                }
+
+                val reader = InputStreamReader(connection.inputStream)
+                reader.use { input ->
+                    val response = StringBuilder()
+                    val bufferedReader = BufferedReader(input)
+                    bufferedReader.useLines { lines ->
+                        lines.forEach {
+                            response.append(it.trim())
+                        }
+                    }
+                    val jsonObject = JSONObject(response.toString())
+                    val token = jsonObject.getString("token")
+                    onUserLoggedIn(token, null)
+                }
+            } catch (e: Throwable) {
+                onUserLoggedIn(null, e)
+            } finally {
+                connection.disconnect()
+            }
+        }).start()
     }
 
     fun registerUser(userDataRequest: UserDataRequest, onUserCreated: (String?, Throwable?) -> Unit) {
@@ -33,8 +73,11 @@ class RemoteApi {
             connection.doOutput = true
             connection.doInput = true
 
-            val body = "{\"name\":\"${userDataRequest.name}\", \"email\":\"${userDataRequest.email}\"," +
-                    "\"password\":\"${userDataRequest.password}\"}"
+            val requestJson = JSONObject()
+            requestJson.put("name", userDataRequest.name)
+            requestJson.put("email", userDataRequest.email)
+            requestJson.put("password", userDataRequest.password)
+            val body = requestJson.toString()
 
             val bytes = body.toByteArray()
             try {
@@ -51,7 +94,9 @@ class RemoteApi {
                             response.append(it.trim())
                         }
                     }
-                    onUserCreated(response.toString(), null)
+                    val jsonObject = JSONObject(response.toString())
+
+                    onUserCreated(jsonObject.getString("message"), null)
                 }
             } catch (e: Throwable) {
                 onUserCreated(null, e)

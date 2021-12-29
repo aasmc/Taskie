@@ -1,11 +1,13 @@
 package ru.aasmc.taskie.ui.login
 
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.ActivityLoginBinding
 import ru.aasmc.taskie.model.request.UserDataRequest
+import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.networking.RemoteApi
 import ru.aasmc.taskie.ui.main.MainActivity
 import ru.aasmc.taskie.ui.register.RegisterActivity
@@ -15,7 +17,11 @@ import ru.aasmc.taskie.utils.visible
 /**
  * Displays the Login screen, with the options to head over to the Register screen.
  */
-class LoginActivity: AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
+
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
+    }
 
     private val remoteApi = RemoteApi()
     private lateinit var binding: ActivityLoginBinding
@@ -46,11 +52,15 @@ class LoginActivity: AppCompatActivity() {
     }
 
     private fun logUserIn(userDataRequest: UserDataRequest) {
-        remoteApi.loginUser(userDataRequest){token: String?, throwable: Throwable? ->
-            if (token != null && token.isNotBlank()) {
-                onLoginSuccess(token)
-            } else if (throwable != null) {
-                showLoginError()
+        networkStatusChecker.performIfConnectedToInternet {
+            remoteApi.loginUser(userDataRequest) { token: String?, throwable: Throwable? ->
+                runOnUiThread {
+                    if (token != null && token.isNotBlank()) {
+                        onLoginSuccess(token)
+                    } else if (throwable != null) {
+                        showLoginError()
+                    }
+                }
             }
         }
     }
