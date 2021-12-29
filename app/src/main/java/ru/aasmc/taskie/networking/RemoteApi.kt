@@ -116,7 +116,6 @@ class RemoteApi {
             connection.setRequestProperty("Authorization", App.getToken())
             connection.readTimeout = 10000
             connection.connectTimeout = 10000
-            connection.doOutput = true
             connection.doInput = true
 
             try {
@@ -131,13 +130,14 @@ class RemoteApi {
                     }
                     val tasksResponse =
                         gson.fromJson(response.toString(), GetTasksResponse::class.java)
-                    onTasksReceived(tasksResponse.notes.filter { !it.isCompleted }, null)
+                    onTasksReceived(tasksResponse.notes, null)
                 }
             } catch (e: Throwable) {
                 onTasksReceived(emptyList(), e)
-            } finally {
-                connection.disconnect()
             }
+
+            connection.disconnect()
+
         }).start()
     }
 

@@ -72,7 +72,8 @@ class AddTaskDialogFragment : DialogFragment() {
         context?.let {
             binding.prioritySelector.adapter =
                 ArrayAdapter<PriorityColor>(
-                    it, android.R.layout.simple_spinner_dropdown_item,
+                    it,
+                    android.R.layout.simple_spinner_dropdown_item,
                     PriorityColor.values()
                 )
             binding.prioritySelector.setSelection(0)
