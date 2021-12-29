@@ -1,3 +1,8 @@
 package ru.aasmc.taskie.model.response
 
-class CompleteNoteResponse(val message: String?)
+import com.squareup.moshi.Json
+
+class CompleteNoteResponse(
+    @field:Json(name = "message")
+    val message: String?
+)
