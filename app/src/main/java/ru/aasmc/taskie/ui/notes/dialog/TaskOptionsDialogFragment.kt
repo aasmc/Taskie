@@ -10,6 +10,8 @@ import androidx.fragment.app.DialogFragment
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogTaskOptionsBinding
+import ru.aasmc.taskie.model.Failure
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.networking.NetworkStatusChecker
 
 /**
@@ -74,8 +76,8 @@ class TaskOptionsDialogFragment : DialogFragment() {
 
         binding.deleteTask.setOnClickListener {
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.deleteTask { error ->
-                    if (error == null) {
+                remoteApi.deleteTask(taskId) { result ->
+                    if (result is Success) {
                         taskOptionSelectedListener?.onTaskDeleted(taskId)
                     }
                     dismissAllowingStateLoss()
