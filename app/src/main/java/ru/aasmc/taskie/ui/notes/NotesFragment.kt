@@ -7,6 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.FragmentNotesBinding
 import ru.aasmc.taskie.model.Success
@@ -80,14 +84,15 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     private fun getAllTasks() {
         binding.progress.visible()
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.getTasks { result ->
-
-                if (result is Success) {
-                    onTaskListReceived(result.data)
-                } else  {
-                    onGetTasksFailed()
+            GlobalScope.launch {
+                val tasks = remoteApi.getTasks()
+                withContext(Dispatchers.Main) {
+                    if (tasks is Success) {
+                        onTaskListReceived(tasks.data)
+                    } else {
+                        onGetTasksFailed()
+                    }
                 }
-
             }
         }
     }

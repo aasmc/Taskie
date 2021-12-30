@@ -7,10 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogTaskOptionsBinding
-import ru.aasmc.taskie.model.Failure
 import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.networking.NetworkStatusChecker
 
@@ -75,10 +78,14 @@ class TaskOptionsDialogFragment : DialogFragment() {
         if (taskId.isEmpty()) dismissAllowingStateLoss()
 
         binding.deleteTask.setOnClickListener {
+
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.deleteTask(taskId) { result ->
+                GlobalScope.launch {
+                    val result = remoteApi.deleteTask(taskId)
                     if (result is Success) {
-                        taskOptionSelectedListener?.onTaskDeleted(taskId)
+                        withContext(Dispatchers.Main) {
+                            taskOptionSelectedListener?.onTaskCompleted(taskId)
+                        }
                     }
                     dismissAllowingStateLoss()
                 }
@@ -87,9 +94,10 @@ class TaskOptionsDialogFragment : DialogFragment() {
 
         binding.completeTask.setOnClickListener {
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.completeTask(taskId) { error ->
-                    activity?.runOnUiThread {
-                        if (error == null) {
+                GlobalScope.launch {
+                    val data = remoteApi.completeTask(taskId)
+                    withContext(Dispatchers.Main) {
+                        if (data is Success) {
                             taskOptionSelectedListener?.onTaskCompleted(taskId)
                         }
                         dismissAllowingStateLoss()

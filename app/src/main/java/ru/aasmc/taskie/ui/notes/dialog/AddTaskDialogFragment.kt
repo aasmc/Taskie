@@ -9,6 +9,10 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogNewTaskBinding
@@ -93,14 +97,17 @@ class AddTaskDialogFragment : DialogFragment() {
         val content = binding.newTaskDescriptionInput.text.toString()
         val priority = binding.prioritySelector.selectedItemPosition + 1
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.addTask(AddTaskRequest(title, content, priority)) { result ->
-                if (result is Success) {
-                    onTaskAdded(result.data)
-                } else {
-                    onTaskAddFailed()
+            GlobalScope.launch {
+                val result = remoteApi.addTask(AddTaskRequest(title, content, priority))
+                withContext(Dispatchers.Main) {
+                    if (result is Success) {
+                        onTaskAdded(result.data)
+                    } else {
+                        onTaskAddFailed()
+                    }
+                    clearUi()
                 }
             }
-            clearUi()
         }
     }
 

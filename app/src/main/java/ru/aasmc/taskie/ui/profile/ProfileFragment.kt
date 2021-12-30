@@ -6,6 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentProfileBinding
@@ -33,14 +37,16 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUi()
-
-        remoteApi.getUserProfile { result ->
+        GlobalScope.launch {
+            val result = remoteApi.getUserProfile()
             if (result is Success) {
                 val userProfile = result.data
-                binding.userEmail.text = userProfile.email
-                binding.userName.text = getString(R.string.user_name_text, userProfile.name)
-                binding.numberOfNotes.text =
-                    getString(R.string.number_of_notes_text, userProfile.numberOfNotes)
+                withContext(Dispatchers.Main) {
+                    binding.userEmail.text = userProfile.email
+                    binding.userName.text = getString(R.string.user_name_text, userProfile.name)
+                    binding.numberOfNotes.text =
+                        getString(R.string.number_of_notes_text, userProfile.numberOfNotes)
+                }
             }
         }
     }
