@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentProfileBinding
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.ui.login.LoginActivity
 
 /**
@@ -33,8 +34,9 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initUi()
 
-        remoteApi.getUserProfile { userProfile, _ ->
-            if (userProfile != null) {
+        remoteApi.getUserProfile { result ->
+            if (result is Success) {
+                val userProfile = result.data
                 binding.userEmail.text = userProfile.email
                 binding.userName.text = getString(R.string.user_name_text, userProfile.name)
                 binding.numberOfNotes.text =

@@ -13,6 +13,7 @@ import ru.aasmc.taskie.App
 import ru.aasmc.taskie.R
 import ru.aasmc.taskie.databinding.FragmentDialogNewTaskBinding
 import ru.aasmc.taskie.model.PriorityColor
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.model.request.AddTaskRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
@@ -92,10 +93,10 @@ class AddTaskDialogFragment : DialogFragment() {
         val content = binding.newTaskDescriptionInput.text.toString()
         val priority = binding.prioritySelector.selectedItemPosition + 1
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
-                if (task != null) {
-                    onTaskAdded(task)
-                } else if (error != null) {
+            remoteApi.addTask(AddTaskRequest(title, content, priority)) { result ->
+                if (result is Success) {
+                    onTaskAdded(result.data)
+                } else {
                     onTaskAddFailed()
                 }
             }

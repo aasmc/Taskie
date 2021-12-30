@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.ActivityLoginBinding
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.model.request.UserDataRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.ui.main.MainActivity
@@ -56,11 +57,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun logUserIn(userDataRequest: UserDataRequest) {
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.loginUser(userDataRequest) { token: String?, throwable: Throwable? ->
+            remoteApi.loginUser(userDataRequest) { result ->
 
-                if (token != null && token.isNotBlank()) {
-                    onLoginSuccess(token)
-                } else if (throwable != null) {
+                if (result is Success) {
+                    onLoginSuccess(result.data)
+                } else {
                     showLoginError()
                 }
             }

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.FragmentNotesBinding
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.model.Task
 import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.ui.notes.dialog.AddTaskDialogFragment
@@ -79,11 +80,11 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     private fun getAllTasks() {
         binding.progress.visible()
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.getTasks { tasks, error ->
+            remoteApi.getTasks { result ->
 
-                if (tasks.isNotEmpty()) {
-                    onTaskListReceived(tasks)
-                } else if (error != null) {
+                if (result is Success) {
+                    onTaskListReceived(result.data)
+                } else  {
                     onGetTasksFailed()
                 }
 

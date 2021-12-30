@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import ru.aasmc.taskie.App
 import ru.aasmc.taskie.databinding.ActivityRegisterBinding
+import ru.aasmc.taskie.model.Success
 import ru.aasmc.taskie.model.request.UserDataRequest
 import ru.aasmc.taskie.networking.NetworkStatusChecker
 import ru.aasmc.taskie.utils.gone
@@ -48,11 +49,11 @@ class RegisterActivity : AppCompatActivity() {
                         password,
                         username
                     )
-                ) { message, error ->
-                    if (message != null) {
-                        toast(message)
+                ) { result ->
+                    if (result is Success) {
+                        toast(result.data)
                         onRegisterSuccess()
-                    } else if (error != null) {
+                    } else  {
                         onRegisterError()
                     }
                     
