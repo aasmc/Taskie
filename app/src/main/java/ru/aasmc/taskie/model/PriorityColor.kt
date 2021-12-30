@@ -1,5 +1,6 @@
 package ru.aasmc.taskie.model
 
+import kotlinx.serialization.Serializable
 import ru.aasmc.taskie.R
 
 /**

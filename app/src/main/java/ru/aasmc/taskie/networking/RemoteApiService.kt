@@ -1,7 +1,5 @@
 package ru.aasmc.taskie.networking
 
-import okhttp3.RequestBody
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
 import ru.aasmc.taskie.model.Task

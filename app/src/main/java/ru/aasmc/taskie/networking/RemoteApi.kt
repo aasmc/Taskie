@@ -1,7 +1,5 @@
 package ru.aasmc.taskie.networking
 
-import com.google.gson.Gson
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

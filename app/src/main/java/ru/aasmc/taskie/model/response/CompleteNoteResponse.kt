@@ -1,8 +1,8 @@
 package ru.aasmc.taskie.model.response
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.Serializable
 
+@Serializable
 class CompleteNoteResponse(
-    @field:Json(name = "message")
     val message: String?
 )
